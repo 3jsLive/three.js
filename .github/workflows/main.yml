@@ -23,4 +23,6 @@ jobs:
         path: tasks
 
     - name: recon
-      run: tree
+      run: |
+        sudo apt install tree
+        tree
