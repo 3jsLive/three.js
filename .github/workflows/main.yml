@@ -28,7 +28,7 @@ jobs:
         cd threejs
         npm install
         npm run-script build
-        cd ../tasks
+        cd ../tasks/checks
         npm install
         
     - name: run checks
