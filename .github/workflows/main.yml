@@ -28,12 +28,14 @@ jobs:
         npm run-script build
         cd ../tasks/typesearch
         npm install
+        rm -rf /home/runner/work/three.js/.git || true
+        rm -rf /home/runner/work/three.js/three.js/.git || true
         
     - name: store for fan-out
       uses: actions/upload-artifact@v1
       with:
         name: eeeeverything
-        path: $GITHUB_WORKSPACE
+        path: /home/runner/work/three.js
   one:
     needs: prepare
     runs-on: ubuntu-latest
