@@ -37,7 +37,7 @@ jobs:
         python3 -m http.server -b localhost 14227 &
         cd $GITHUB_WORKSPACE/tasks/typesearch
         export typesearch_dataPath=$GITHUB_WORKSPACE/results
-        DISPLAY=99 xvfb-run -a --server-args="-screen 0 1024x768x24 -ac -nolisten tcp -dpi 96 +extension GLX +extension RENDER +extension RANDR" node src/cli.js $GITHUB_WORKSPACE/eeeeverything/threejs 'http://127.0.0.1:14227/examples/css3d_sprites.html'
+        DISPLAY=99 xvfb-run -a --server-args="-screen 0 1024x768x24 -ac -nolisten tcp -dpi 96 +extension GLX +extension RENDER +extension RANDR" node src/cli.js $GITHUB_WORKSPACE/threejs 'http://127.0.0.1:14227/examples/css3d_sprites.html'
 
     - name: Archive results
       uses: actions/upload-artifact@v1
@@ -78,7 +78,7 @@ jobs:
         python3 -m http.server -b localhost 14227 &
         cd $GITHUB_WORKSPACE/tasks/typesearch
         export typesearch_dataPath=$GITHUB_WORKSPACE/results
-        DISPLAY=99 xvfb-run -a --server-args="-screen 0 1024x768x24 -ac -nolisten tcp -dpi 96 +extension GLX +extension RENDER +extension RANDR" node src/cli.js $GITHUB_WORKSPACE/eeeeverything/threejs 'http://127.0.0.1:14227/examples/css3d_sprites.html'
+        DISPLAY=99 xvfb-run -a --server-args="-screen 0 1024x768x24 -ac -nolisten tcp -dpi 96 +extension GLX +extension RENDER +extension RANDR" node src/cli.js $GITHUB_WORKSPACE/threejs 'http://127.0.0.1:14227/examples/css3d_sprites.html'
 
     - name: Archive results
       uses: actions/upload-artifact@v1
