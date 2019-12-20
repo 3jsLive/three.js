@@ -22,7 +22,23 @@ jobs:
         token: ${{ secrets.GitHub_PAT }}
         path: tasks
 
-    - name: recon
+    - name: install and build
       run: |
-        sudo apt install tree
-        tree
+        cd $GITHUB_WORKSPACE
+        cd threejs
+        npm install
+        npm run-script build
+        cd ../tasks
+        npm install
+        
+    - name: run checks
+      run: |
+        cd $GITHUB_WORKSPACE
+        cd tasks/checks
+        node src/checkDocsForBrokenExampleLinks.js $GITHUB_WORKSPACE/threejs output.log
+
+    - name: Archive results
+      uses: actions/upload-artifact@v1
+      with:
+        name: broken examples
+        path: tasks/checks/output.log
