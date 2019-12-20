@@ -1,12 +1,10 @@
-name: CI
+name: task tests, the inefficient way
 
 on: [push]
 
 jobs:
-  build:
-
+  prepare:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout three.js base
       uses: actions/checkout@v2
@@ -28,17 +26,60 @@ jobs:
         cd threejs
         npm install
         npm run-script build
-        cd ../tasks/checks
+        cd ../tasks/typesearch
         npm install
         
-    - name: run checks
+    - name: store for fan-out
+      uses: actions/upload-artifact@v1
+      with:
+        name: eeeeverything
+        path: $GITHUB_WORKSPACE
+  one:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+    - name: download prepared base
+      uses: actions/download-artifact@v1
+      with:
+        name: eeeeverything
+      
+    - name: run typesearch
       run: |
-        cd $GITHUB_WORKSPACE
-        cd tasks/checks
-        node src/checkDocsForBrokenExampleLinks.js $GITHUB_WORKSPACE/threejs output.log
+        mkdir $GITHUB_WORKSPACE/results
+        cd $GITHUB_WORKSPACE/eeeeverything
+        cd threejs
+        python3 -m http.server -b localhost 14227 &
+        cd ../tasks/typesearch
+        export typesearch_dataPath=$GITHUB_WORKSPACE/results
+        DISPLAY=99 xvfb-run -a --server-args="-screen 0 1024x768x24 -ac -nolisten tcp -dpi 96 +extension GLX +extension RENDER +extension RANDR" node src/cli.js $GITHUB_WORKSPACE/eeeeverything/threejs 'http://127.0.0.1:14227/examples/css3d_sprites.html'
 
     - name: Archive results
       uses: actions/upload-artifact@v1
       with:
-        name: broken examples
-        path: tasks/checks/output.log
+        name: typesearch1
+        path: $GITHUB_WORKSPACE/results
+
+  two:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+    - name: download prepared base
+      uses: actions/download-artifact@v1
+      with:
+        name: eeeeverything
+      
+    - name: run typesearch
+      run: |
+        mkdir $GITHUB_WORKSPACE/results
+        cd $GITHUB_WORKSPACE/eeeeverything
+        cd threejs
+        python3 -m http.server -b localhost 14227 &
+        cd ../tasks/typesearch
+        export typesearch_dataPath=$GITHUB_WORKSPACE/results
+        DISPLAY=99 xvfb-run -a --server-args="-screen 0 1024x768x24 -ac -nolisten tcp -dpi 96 +extension GLX +extension RENDER +extension RANDR" node src/cli.js $GITHUB_WORKSPACE/eeeeverything/threejs 'http://127.0.0.1:14227/examples/css3d_periodictable.html'
+
+    - name: Archive results
+      uses: actions/upload-artifact@v1
+      with:
+        name: typesearch2
+        path: $GITHUB_WORKSPACE/results
