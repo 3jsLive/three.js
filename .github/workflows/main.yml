@@ -3,7 +3,7 @@ name: task tests, the inefficient way
 on: [push]
 
 jobs:
-  prepare:
+  one:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout three.js base
@@ -28,30 +28,14 @@ jobs:
         npm run-script build
         cd ../tasks/typesearch
         npm install
-        rm -rf /home/runner/work/three.js/.git || true
-        rm -rf /home/runner/work/three.js/three.js/.git || true
-        
-    - name: store for fan-out
-      uses: actions/upload-artifact@v1
-      with:
-        name: eeeeverything
-        path: /home/runner/work/three.js
-  one:
-    needs: prepare
-    runs-on: ubuntu-latest
-    steps:
-    - name: download prepared base
-      uses: actions/download-artifact@v1
-      with:
-        name: eeeeverything
       
     - name: run typesearch
       run: |
-        mkdir $GITHUB_WORKSPACE/results
-        cd $GITHUB_WORKSPACE/eeeeverything
-        cd threejs
+        cd $GITHUB_WORKSPACE
+        mkdir results
+        cd $GITHUB_WORKSPACE/threejs
         python3 -m http.server -b localhost 14227 &
-        cd ../tasks/typesearch
+        cd $GITHUB_WORKSPACE/tasks/typesearch
         export typesearch_dataPath=$GITHUB_WORKSPACE/results
         DISPLAY=99 xvfb-run -a --server-args="-screen 0 1024x768x24 -ac -nolisten tcp -dpi 96 +extension GLX +extension RENDER +extension RANDR" node src/cli.js $GITHUB_WORKSPACE/eeeeverything/threejs 'http://127.0.0.1:14227/examples/css3d_sprites.html'
 
@@ -60,25 +44,41 @@ jobs:
       with:
         name: typesearch1
         path: $GITHUB_WORKSPACE/results
-
   two:
-    needs: prepare
     runs-on: ubuntu-latest
     steps:
-    - name: download prepared base
-      uses: actions/download-artifact@v1
+    - name: Checkout three.js base
+      uses: actions/checkout@v2
+      continue-on-error: true
       with:
-        name: eeeeverything
+        path: threejs
+
+    - name: Checkout test tasks
+      uses: actions/checkout@v2
+      continue-on-error: true
+      with:
+        repository: 3jsLive/tasks
+        token: ${{ secrets.GitHub_PAT }}
+        path: tasks
+
+    - name: install and build
+      run: |
+        cd $GITHUB_WORKSPACE
+        cd threejs
+        npm install
+        npm run-script build
+        cd ../tasks/typesearch
+        npm install
       
     - name: run typesearch
       run: |
-        mkdir $GITHUB_WORKSPACE/results
-        cd $GITHUB_WORKSPACE/eeeeverything
-        cd threejs
+        cd $GITHUB_WORKSPACE
+        mkdir results
+        cd $GITHUB_WORKSPACE/threejs
         python3 -m http.server -b localhost 14227 &
-        cd ../tasks/typesearch
+        cd $GITHUB_WORKSPACE/tasks/typesearch
         export typesearch_dataPath=$GITHUB_WORKSPACE/results
-        DISPLAY=99 xvfb-run -a --server-args="-screen 0 1024x768x24 -ac -nolisten tcp -dpi 96 +extension GLX +extension RENDER +extension RANDR" node src/cli.js $GITHUB_WORKSPACE/eeeeverything/threejs 'http://127.0.0.1:14227/examples/css3d_periodictable.html'
+        DISPLAY=99 xvfb-run -a --server-args="-screen 0 1024x768x24 -ac -nolisten tcp -dpi 96 +extension GLX +extension RENDER +extension RANDR" node src/cli.js $GITHUB_WORKSPACE/eeeeverything/threejs 'http://127.0.0.1:14227/examples/css3d_sprites.html'
 
     - name: Archive results
       uses: actions/upload-artifact@v1
