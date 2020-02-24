@@ -3,8 +3,11 @@ export default /* glsl */`
 
 	#ifdef USE_LOGDEPTHBUF_EXT
 
-		vFragDepth = 1.0 + gl_Position.w;
-		vIsPerspective = float( isPerspectiveMatrix( projectionMatrix ) );
+		bool isPerspective = isPerspectiveMatrix( projectionMatrix );
+
+		vIsPerspective = float( isPerspective );
+
+		vFragDepth = isPerspective ? 1.0 + gl_Position.w : gl_Position.z * 0.5 + 0.5;
 
 	#else
 
