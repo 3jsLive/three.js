@@ -12,6 +12,8 @@ export interface SVGResult {
 }
 
 export interface StrokeStyle {
+	fill: string;
+	fillOpacity: number;
 	strokeColor: string;
 	strokeWidth: number;
 	strokeLineJoin: string;
