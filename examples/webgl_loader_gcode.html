@@ -48,7 +48,7 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
 
-				var controls = new OrbitControls( camera, renderer.domElement );
+				new OrbitControls( camera, renderer.domElement );
 
 				window.addEventListener( 'resize', resize, false );
 

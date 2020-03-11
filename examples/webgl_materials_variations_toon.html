@@ -158,7 +158,7 @@
 				stats = new Stats();
 				container.appendChild( stats.dom );
 
-				var controls = new OrbitControls( camera, renderer.domElement );
+				new OrbitControls( camera, renderer.domElement );
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
