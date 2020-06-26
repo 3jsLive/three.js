@@ -408,6 +408,8 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 
 	const program = gl.createProgram();
 
+	const _this = this;
+
 	let prefixVertex, prefixFragment;
 
 	if ( parameters.isRawShaderMaterial ) {
@@ -725,71 +727,81 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 
 	gl.linkProgram( program );
 
-	// check for link errors
-	if ( renderer.debug.checkShaderErrors ) {
+	let firstUse = true;
 
-		const programLog = gl.getProgramInfoLog( program ).trim();
-		const vertexLog = gl.getShaderInfoLog( glVertexShader ).trim();
-		const fragmentLog = gl.getShaderInfoLog( glFragmentShader ).trim();
+	function onFirstUse() {
 
-		let runnable = true;
-		let haveDiagnostics = true;
+		firstUse = false;
 
-		if ( gl.getProgramParameter( program, gl.LINK_STATUS ) === false ) {
+		// check for link errors
+		if ( renderer.debug.checkShaderErrors ) {
 
-			runnable = false;
+			const startTime = performance.now();
 
-			const vertexErrors = getShaderErrors( gl, glVertexShader, 'vertex' );
-			const fragmentErrors = getShaderErrors( gl, glFragmentShader, 'fragment' );
+			const programLog = gl.getProgramInfoLog( program ).trim();
+			const vertexLog = gl.getShaderInfoLog( glVertexShader ).trim();
+			const fragmentLog = gl.getShaderInfoLog( glFragmentShader ).trim();
 
-			console.error( 'THREE.WebGLProgram: shader error: ', gl.getError(), 'gl.VALIDATE_STATUS', gl.getProgramParameter( program, gl.VALIDATE_STATUS ), 'gl.getProgramInfoLog', programLog, vertexErrors, fragmentErrors );
+			let runnable = true;
+			let haveDiagnostics = true;
 
-		} else if ( programLog !== '' ) {
+			if ( gl.getProgramParameter( program, gl.LINK_STATUS ) === false ) {
 
-			console.warn( 'THREE.WebGLProgram: gl.getProgramInfoLog()', programLog );
+				runnable = false;
 
-		} else if ( vertexLog === '' || fragmentLog === '' ) {
+				const vertexErrors = getShaderErrors( gl, glVertexShader, 'vertex' );
+				const fragmentErrors = getShaderErrors( gl, glFragmentShader, 'fragment' );
 
-			haveDiagnostics = false;
+				console.error( 'THREE.WebGLProgram: shader error: ', gl.getError(), 'gl.VALIDATE_STATUS', gl.getProgramParameter( program, gl.VALIDATE_STATUS ), 'gl.getProgramInfoLog', programLog, vertexErrors, fragmentErrors );
+
+			} else if ( programLog !== '' ) {
+
+				console.warn( 'THREE.WebGLProgram: gl.getProgramInfoLog()', programLog );
+
+			} else if ( vertexLog === '' || fragmentLog === '' ) {
+
+				haveDiagnostics = false;
+
+			}
+
+			if ( haveDiagnostics ) {
+
+				_this.diagnostics = {
+
+					runnable: runnable,
+
+					programLog: programLog,
+
+					vertexShader: {
+
+						log: vertexLog,
+						prefix: prefixVertex
+
+					},
+
+					fragmentShader: {
+
+						log: fragmentLog,
+						prefix: prefixFragment
+
+					}
+
+				};
+
+			}
 
 		}
 
-		if ( haveDiagnostics ) {
+		// Clean up
 
-			this.diagnostics = {
+		// Crashes in iOS9 and iOS10. #18402
+		// gl.detachShader( program, glVertexShader );
+		// gl.detachShader( program, glFragmentShader );
 
-				runnable: runnable,
-
-				programLog: programLog,
-
-				vertexShader: {
-
-					log: vertexLog,
-					prefix: prefixVertex
-
-				},
-
-				fragmentShader: {
-
-					log: fragmentLog,
-					prefix: prefixFragment
-
-				}
-
-			};
-
-		}
+		gl.deleteShader( glVertexShader );
+		gl.deleteShader( glFragmentShader );
 
 	}
-
-	// Clean up
-
-	// Crashes in iOS9 and iOS10. #18402
-	// gl.detachShader( program, glVertexShader );
-	// gl.detachShader( program, glFragmentShader );
-
-	gl.deleteShader( glVertexShader );
-	gl.deleteShader( glFragmentShader );
 
 	// set up caching for uniform locations
 
@@ -798,6 +810,12 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 	this.getUniforms = function () {
 
 		if ( cachedUniforms === undefined ) {
+
+			if ( firstUse ) {
+
+				onFirstUse();
+
+			}
 
 			cachedUniforms = new WebGLUniforms( gl, program );
 
@@ -814,6 +832,12 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 	this.getAttributes = function () {
 
 		if ( cachedAttributes === undefined ) {
+
+			if ( firstUse ) {
+
+				onFirstUse();
+
+			}
 
 			cachedAttributes = fetchAttributeLocations( gl, program );
 
