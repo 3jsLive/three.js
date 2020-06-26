@@ -107,15 +107,20 @@ THREE.SVGRenderer = function () {
 	 	};
 
 	};
-
-	this.setSize = function ( width, height ) {
+	
+	this.setSize = function ( width, height, updateStyle = true ) {
 
 		_svgWidth = width; _svgHeight = height;
 		_svgWidthHalf = _svgWidth / 2; _svgHeightHalf = _svgHeight / 2;
 
 		_svg.setAttribute( 'viewBox', ( - _svgWidthHalf ) + ' ' + ( - _svgHeightHalf ) + ' ' + _svgWidth + ' ' + _svgHeight );
-		_svg.setAttribute( 'width', _svgWidth );
-		_svg.setAttribute( 'height', _svgHeight );
+
+		if ( updateStyle ) {
+
+			_svg.setAttribute( 'width', _svgWidth );
+			_svg.setAttribute( 'height', _svgHeight );
+
+		}
 
 		_clipBox.min.set( - _svgWidthHalf, - _svgHeightHalf );
 		_clipBox.max.set( _svgWidthHalf, _svgHeightHalf );
