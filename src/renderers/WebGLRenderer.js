@@ -1443,11 +1443,13 @@ function WebGLRenderer( parameters ) {
 
 		}
 
+		materialProperties.uniformsList = null;
+
 	}
 
 	function getUniformList( materialProperties ) {
 
-		if ( materialProperties.uniformsList === undefined ) {
+		if ( materialProperties.uniformsList === null ) {
 
 			const progUniforms = materialProperties.program.getUniforms();
 			materialProperties.uniformsList = WebGLUniforms.seqWithValue( progUniforms.seq, materialProperties.uniforms );
