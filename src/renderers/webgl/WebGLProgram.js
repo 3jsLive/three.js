@@ -727,16 +727,10 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 
 	gl.linkProgram( program );
 
-	let firstUse = true;
-
 	function onFirstUse() {
-
-		firstUse = false;
 
 		// check for link errors
 		if ( renderer.debug.checkShaderErrors ) {
-
-			const startTime = performance.now();
 
 			const programLog = gl.getProgramInfoLog( program ).trim();
 			const vertexLog = gl.getShaderInfoLog( glVertexShader ).trim();
@@ -801,6 +795,9 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 		gl.deleteShader( glVertexShader );
 		gl.deleteShader( glFragmentShader );
 
+		cachedUniforms = new WebGLUniforms( gl, program );
+		cachedAttributes = fetchAttributeLocations( gl, program );
+
 	}
 
 	// set up caching for uniform locations
@@ -811,13 +808,8 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 
 		if ( cachedUniforms === undefined ) {
 
-			if ( firstUse ) {
-
-				onFirstUse();
-
-			}
-
-			cachedUniforms = new WebGLUniforms( gl, program );
+			// Populates cachedUniforms and cachedAttributes
+			onFirstUse();
 
 		}
 
@@ -833,13 +825,8 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 
 		if ( cachedAttributes === undefined ) {
 
-			if ( firstUse ) {
-
-				onFirstUse();
-
-			}
-
-			cachedAttributes = fetchAttributeLocations( gl, program );
+			// Populates cachedAttributes and cachedUniforms
+			onFirstUse();
 
 		}
 
