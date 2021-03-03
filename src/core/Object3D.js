@@ -92,7 +92,7 @@ function Object3D() {
 	this.matrixWorld = new Matrix4();
 
 	this.matrixAutoUpdate = Object3D.DefaultMatrixAutoUpdate;
-	this.matrixWorldNeedsUpdate = false;
+	this._matrixWorldNeedsUpdate = false;
 
 	this.layers = new Layers();
 	this.visible = true;
@@ -120,6 +120,18 @@ Object3D.prototype = Object.assign( Object.create( EventDispatcher.prototype ), 
 
 	onBeforeRender: function () {},
 	onAfterRender: function () {},
+
+	get matrixWorldNeedsUpdate() {
+
+		return this._matrixWorldNeedsUpdate;
+
+	},
+
+	set matrixWorldNeedsUpdate( value ) {
+
+		this._matrixWorldNeedsUpdate = value;
+
+	},
 
 	applyMatrix4: function ( matrix ) {
 
