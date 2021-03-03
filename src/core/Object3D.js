@@ -85,6 +85,19 @@ function Object3D() {
 		},
 		normalMatrix: {
 			value: new Matrix3()
+		},
+		matrixWorldNeedsUpdate: {
+			get() {
+
+				return this._matrixWorldNeedsUpdate;
+
+			},
+			set( value ) {
+
+				this._matrixWorldNeedsUpdate = value;
+
+			}
+
 		}
 	} );
 
@@ -120,18 +133,6 @@ Object3D.prototype = Object.assign( Object.create( EventDispatcher.prototype ), 
 
 	onBeforeRender: function () {},
 	onAfterRender: function () {},
-
-	get matrixWorldNeedsUpdate() {
-
-		return this._matrixWorldNeedsUpdate;
-
-	},
-
-	set matrixWorldNeedsUpdate( value ) {
-
-		this._matrixWorldNeedsUpdate = value;
-
-	},
 
 	applyMatrix4: function ( matrix ) {
 
@@ -586,7 +587,7 @@ Object3D.prototype = Object.assign( Object.create( EventDispatcher.prototype ), 
 
 		if ( this.matrixAutoUpdate ) this.updateMatrix();
 
-		if ( this.matrixWorldNeedsUpdate || force ) {
+		if ( this._matrixWorldNeedsUpdate || force ) {
 
 			if ( this.parent === null ) {
 
@@ -598,7 +599,7 @@ Object3D.prototype = Object.assign( Object.create( EventDispatcher.prototype ), 
 
 			}
 
-			this.matrixWorldNeedsUpdate = false;
+			this._matrixWorldNeedsUpdate = false;
 
 			force = true;
 
